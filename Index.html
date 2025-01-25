@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Escolha Seu Plano</title>
+    <style>
+        body {
+            background-color: #4B0082; /* Roxo */
+            color: white;
+            font-family: Arial, sans-serif;
+            text-align: center;
+        }
+        .container {
+            max-width: 600px;
+            margin: auto;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            border-radius: 10px;
+        }
+        select, button {
+            width: 100%;
+            padding: 10px;
+            margin-top: 10px;
+            font-size: 16px;
+        }
+        .beneficio {
+            font-size: 14px;
+            margin: 5px 0;
+            font-weight: bold;
+        }
+        .result {
+            display: none;
+            background: white;
+            color: black;
+            padding: 20px;
+            margin-top: 20px;
+            border-radius: 5px;
+            font-size: 18px;
+            font-weight: bold;
+            transform: scale(0);
+            transition: transform 0.3s ease-in-out;
+        }
+        .show {
+            transform: scale(1);
+        }
+        .btn-small {
+            width: auto;
+            padding: 5px;
+            font-size: 14px;
+            margin-top: 10px;
+            cursor: pointer;
+        }
+        .camera-icon {
+            cursor: pointer;
+            margin-left: 10px;
+            font-size: 18px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h2>Escolha Seu Plano</h2>
+
+        <label for="banda_larga">Banda Larga:</label>
+        <select id="banda_larga" onchange="atualizarBeneficio('banda_larga')">
+            <option value="0" data-beneficio="" data-img="">Nenhum</option>
+            <option value="100" data-beneficio="Internet rápida 200Mbps" data-img="https://via.placeholder.com/150">Plano 200Mbps - R$100</option>
+            <option value="150" data-beneficio="Internet ultra rápida 500Mbps" data-img="https://via.placeholder.com/150">Plano 500Mbps - R$150</option>
+            <option value="200" data-beneficio="Internet 1Gbps" data-img="https://via.placeholder.com/150">Plano 1Gbps - R$200</option>
+        </select>
+        <p class="beneficio" id="beneficio_banda_larga"></p>
+
+        <label for="movel">Móvel:</label>
+        <select id="movel" onchange="atualizarBeneficio('movel')">
+            <option value="0" data-beneficio="" data-img="">Nenhum</option>
+            <option value="50" data-beneficio="5GB de dados" data-img="https://via.placeholder.com/150">Plano 5GB - R$50</option>
+            <option value="80" data-beneficio="10GB de dados" data-img="https://via.placeholder.com/150">Plano 10GB - R$80</option>
+            <option value="120" data-beneficio="20GB de dados + Ligações ilimitadas" data-img="https://via.placeholder.com/150">Plano 20GB - R$120</option>
+        </select>
+        <p class="beneficio" id="beneficio_movel"></p>
+
+        <label for="vvn">VVN:</label>
+        <select id="vvn" onchange="atualizarBeneficio('vvn')">
+            <option value="0" data-beneficio="" data-img="">Nenhum</option>
+            <option value="30" data-beneficio="VPN segura" data-img="https://via.placeholder.com/150">VPN - R$30</option>
+            <option value="50" data-beneficio="VPN + IP fixo" data-img="https://via.placeholder.com/150">VPN + IP fixo - R$50</option>
+        </select>
+        <p class="beneficio" id="beneficio_vvn"></p>
+
+        <label for="adicionais">Adicionais:</label>
+        <select id="adicionais" multiple size="5" onchange="atualizarBeneficio('adicionais')">
+            <option value="20" data-beneficio="Suporte 24h" data-img="https://via.placeholder.com/150">Suporte 24h - R$20</option>
+            <option value="40" data-beneficio="Roteador incluso" data-img="https://via.placeholder.com/150">Roteador incluso - R$40</option>
+            <option value="30" data-beneficio="Wi-Fi Mesh" data-img="https://via.placeholder.com/150">Wi-Fi Mesh - R$30</option>
+            <option value="50" data-beneficio="TV por assinatura" data-img="https://via.placeholder.com/150">TV por assinatura - R$50</option>
+            <option value="25" data-beneficio="Antivírus Premium" data-img="https://via.placeholder.com/150">Antivírus Premium - R$25</option>
+        </select>
+        <p class="beneficio" id="beneficio_adicionais"></p>
+
+        <button onclick="calcularTotal()">Totalizar</button>
+        <button class="btn-small" onclick="limparSelecoes()">Limpar</button>
+
+        <div class="result" id="resultado">
+            <h3>Resumo da Escolha</h3>
+            <p id="detalhes"></p>
+            <h2>Total: R$<span id="total">0</span></h2>
+        </div>
+    </div>
+
+    <script>
+        function atualizarBeneficio(tipo) {
+            let select = document.getElementById(tipo);
+            let beneficios = [];
+            let beneficioElement = document.getElementById("beneficio_" + tipo);
+
+            if (tipo === "adicionais") {
+                for (let option of select.selectedOptions) {
+                    beneficios.push(`✔️ ${option.getAttribute("data-beneficio")} 
+                        <span class="camera-icon" onclick="abrirImagem('${option.getAttribute("data-img")}')">📷</span>`);
+                }
+            } else {
+                let selectedOption = select.options[select.selectedIndex];
+                if (selectedOption.value > 0) {
+                    beneficios.push(`✔️ ${selectedOption.getAttribute("data-beneficio")} 
+                        <span class="camera-icon" onclick="abrirImagem('${selectedOption.getAttribute("data-img")}')">📷</span>`);
+                }
+            }
+
+            beneficioElement.innerHTML = beneficios.join("<br>");
+        }
+
+        function calcularTotal() {
+            let total = 0;
+            let beneficios = [];
+
+            document.querySelectorAll("select").forEach(select => {
+                for (let option of select.selectedOptions) {
+                    total += parseInt(option.value);
+                    beneficios.push(`✔️ ${option.getAttribute("data-beneficio")}`);
+                }
+            });
+
+            document.getElementById("total").innerText = total;
+            document.getElementById("detalhes").innerHTML = beneficios.join("<br>");
+            let resultado = document.getElementById("resultado");
+            resultado.style.display = "block";
+            setTimeout(() => resultado.classList.add("show"), 10);
+        }
+
+        function limparSelecoes() {
+            document.querySelectorAll("select").forEach(select => {
+                for (let option of select.options) {
+                    option.selected = false;
+                }
+            });
+            document.querySelectorAll(".beneficio").forEach(el => el.innerHTML = "");
+            document.getElementById("resultado").style.display = "none";
+        }
+
+        function abrirImagem(url) {
+            window.open(url, "_blank");
+        }
+    </script>
+
+</body>
+</html>
